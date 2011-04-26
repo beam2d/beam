@@ -8,6 +8,7 @@ out = 'build'
 
 def options(opt):
   opt.load('compiler_cxx')
+  opt.load('unittestt')
 
 def configure(cnf):
   cnf.load('compiler_cxx')
@@ -16,4 +17,4 @@ def configure(cnf):
 
 def build(bld):
   bld.recurse('beam')
-
+  bld.recurse('tests')
