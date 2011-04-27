@@ -9,7 +9,7 @@
 # define BEAM_ATOMIC_CAS_USE_GNUC_EXTENSION
 #else
 # include <pthread.h>
-# define BEAM_MEMORY_BARRIER __asm__ __volatile__ ( "" :: "memory" )
+# define BEAM_MEMORY_BARRIER __asm__ __volatile__ ("" ::: "memory")
 #endif
 
 namespace beam {
@@ -26,8 +26,8 @@ inline int compare_and_swap(volatile int& val, int oldval, int newval) {
   int ret = newval;
   int tmpval = val;
   BEAM_MEMORY_BARRIER;
-  if (tmpval == oldv) {
-    pthread_mutex_lock(&pmutem);
+  if (tmpval == oldval) {
+    pthread_mutex_lock(&pmutex);
     tmpval = val;
     if (tmpval == oldval) {
       tmpval = newval;
