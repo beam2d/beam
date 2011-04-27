@@ -2,3 +2,6 @@
 
 def build(bld):
   bld.install_files('${PREFIX}/include/beam', bld.path.ant_glob('*.h'))
+
+  bld.recurse('log')
+  bld.recurse('tr1')
