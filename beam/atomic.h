@@ -5,7 +5,7 @@
 #elif defined(__APPLE__) && __ENVIRONMENT_MAC_OS_X_VERSION_MIN_REQUIRED__ >= 1050
 # define BEAM_ATOMIC_CAS_USE_MACOSX_OSATOMIC
 # include <libkern/OSAtomic.h>
-#elif __GNUC__ * 100 + __GNU_MINOR__ >= 401
+#elif __GNUC__ * 100 + __GNUC_MINOR__ >= 401
 # define BEAM_ATOMIC_CAS_USE_GNUC_EXTENSION
 #else
 # include <pthread.h>
