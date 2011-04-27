@@ -1,6 +1,0 @@
-#!/usr/bin/env python
-
-def build(bld):
-  bld(features = 'cxx cprogram gtest',
-      source = 'scoped_ptr_test.cc',
-      target = 'scoped_ptr_test')

@@ -17,4 +17,3 @@ def configure(cnf):
 
 def build(bld):
   bld.recurse('beam')
-  bld.recurse('tests')
