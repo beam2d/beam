@@ -129,15 +129,15 @@ struct null_stream {
   (cond) ? (void)0 : ::beam::log::detail::logger_write_trigger() & \
   (::beam::log::detail::exception_logger()) << BEAM_LOG_PREFIX(CHECK)
 
-#ifdef _DEBUG
-# define BEAM_DLOG BEAM_LOG
-# define BEAM_DCHECK BEAM_CHECK
-#else
+#ifdef NDEBUG
 # define BEAM_LOG_NULL_STREAM_                                 \
   1 ? (void)0 : ::beam::log::detail::null_stream::void_op() &  \
   ::beam::log::detail::null_stream()
 # define BEAM_DLOG(...) BEAM_LOG_NULL_STREAM_
 # define BEAM_DCHECK(...) BEAM_LOG_NULL_STREAM_
+#else
+# define BEAM_DLOG BEAM_LOG
+# define BEAM_DCHECK BEAM_CHECK
 #endif  // _DEBUG
 
 #if !defined(BEAM_NO_SHORT_MACRO) && !defined(BEAM_NO_SHORT_LOG_MACRO)
