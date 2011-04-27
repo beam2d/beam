@@ -1,4 +1,4 @@
 #!/usr/bin/env python
 
 def build(bld):
-  bld.install_files('${PREFIX}/include/beam/logger', bld.path.ant_glob('*.h'))
+  bld.install_files('${PREFIX}/include/beam/log', bld.path.ant_glob('*.h'))
