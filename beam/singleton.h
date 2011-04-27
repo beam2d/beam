@@ -104,4 +104,8 @@ template <typename T> class singleton {
 template <typename T> once_flag singleton<T>::once_flag_ = ONCE_INIT;
 template <typename T> T* singleton<T>::instance_;
 
+template <typename T> inline T& get() {
+  return singleton<T>::get();
+}
+
 }  // namespace beam
