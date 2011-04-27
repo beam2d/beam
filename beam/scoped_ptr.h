@@ -54,4 +54,21 @@ inline void swap(scoped_ptr<T>& lhs, scoped_ptr<T>& rhs) {  // never throws
   lhs.swap(rhs);
 }
 
+
+// Deleter must not throw.
+template <typename T, typename Deleter = checked_array_deleter<T> >
+class scoped_array : public scoped_ptr<T, Deleter> {
+ public:
+  // never throws
+  explicit scoped_array(T* ptr = 0) : scoped_ptr<T, Deleter>(ptr) {}
+
+  ~scoped_array() {  // never throws
+    ~scoped_ptr<T, Deleter>();
+  }
+
+  T& operator[](size_t i) const {  // never throws
+    return this->get()[i];
+  }
+};
+
 }  // namespace beam
