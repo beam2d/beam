@@ -3,6 +3,7 @@
 #include <cstdlib>
 #include <vector>
 #include "atomic.h"
+#include "avoid_odr.h"
 #include "checked_delete.h"
 #include "mutex.h"
 #include "nonconstructible.h"
@@ -11,11 +12,9 @@ namespace beam {
 
 template <typename T> class singleton;
 
-template <bool N = false>
+template <avoid_odr>
 class singleton_finalizer_tmpl : nonconstructible {
   template <typename T> friend class singleton;
-
-  static const int N_must_be_false = sizeof(int[N ? -1 : 1]);
 
   static mutex mutex_;
   static bool registered_;
@@ -49,12 +48,12 @@ class singleton_finalizer_tmpl : nonconstructible {
   }
 };
 
-template <bool N> mutex singleton_finalizer_tmpl<N>::mutex_;
-template <bool N> bool singleton_finalizer_tmpl<N>::registered_;
-template <bool N>
+template <avoid_odr N> mutex singleton_finalizer_tmpl<N>::mutex_;
+template <avoid_odr N> bool singleton_finalizer_tmpl<N>::registered_;
+template <avoid_odr N>
 std::vector<void (*)()> singleton_finalizer_tmpl<N>::finalizers_;
 
-typedef singleton_finalizer_tmpl<> singleton_finalizer;
+typedef singleton_finalizer_tmpl<AVOID_ODR> singleton_finalizer;
 
 // The singleton class template can be used with CRTP and/or intrusive ways.
 // e.g.)
