@@ -11,9 +11,11 @@ namespace beam {
 
 template <typename T> class singleton;
 
-template <bool = 0>
+template <bool N = false>
 class singleton_finalizer_tmpl : nonconstructible {
   template <typename T> friend class singleton;
+
+  static const int N_must_be_false = sizeof(int[N ? -1 : 1]);
 
   static mutex mutex_;
   static bool registered_;
@@ -86,10 +88,10 @@ template <typename T> class singleton {
   static T& get() {
     call_once(once_flag_, init());
     if (!instance_) {
-      // This code can be executed only by static variables' destructors which
-      // are called after singleton finalizers and call singleton::get.
-      // During the static destruction, only main thread is running, so we can
-      // ignore thread safety.
+      // This code is executed only by static variables' destructors which are
+      // called after singleton finalizers and call singleton::get. During the
+      // static variables' destruction, we suppose only main thread is running,
+      // so we ignore thread safety here.
       // NOTE: Be careful to an unintended infinite loop. If instance_->~T
       // calls singleton<T>::get, it tries to create new instance of T, and
       // instance_->~T will be called at exit again.
