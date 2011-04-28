@@ -14,7 +14,7 @@ def configure(conf):
         conf.env.LIB_GTEST = []
         for l in t:
             if l == 'gtest':
-                l = 'gtest_main'
+                conf.env.LIB_GTEST.append('gtest_main')
             conf.env.LIB_GTEST.append(l)
 
 def options(opt):
