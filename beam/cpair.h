@@ -6,8 +6,6 @@
 
 namespace beam {
 
-// TODO: Implement swap operations.
-
 // Struct for size compression of type T.
 // If T is empty, then class inheriting cstruct<T> has empty size for instance
 // of T.

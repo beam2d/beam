@@ -15,42 +15,42 @@ class scoped_ptr : public safe_bool<scoped_ptr<T> >, noncopyable {
   cpair<T*, Deleter> cp_;
 
  public:
-  explicit scoped_ptr(T* p = 0) : cp_(p, Deleter()) {}  // never throws
-  scoped_ptr(T* p, Deleter d) : cp_(p, d) {}  // never throws
+  explicit scoped_ptr(T* p = 0) : cp_(p, Deleter()) {}
+  scoped_ptr(T* p, Deleter d) : cp_(p, d) {}
 
-  ~scoped_ptr() {  // never throws
+  ~scoped_ptr() {
     cp_.second()(cp_.first());
   }
 
   // safe_bool
-  bool bool_test() const {  // never throws
+  bool bool_test() const {
     return cp_.first();
   }
 
-  T* get() const {  // never throws
+  T* get() const {
     return cp_.first();
   }
 
-  void reset(T* p = 0) {  // never throws
+  void reset(T* p = 0) {
     assert(p == 0 || p != cp_.first());
     scoped_ptr(p).swap(*this);
   }
 
-  void swap(scoped_ptr& sp) {  // never throws
+  void swap(scoped_ptr& sp) {
     cp_.swap(sp.cp_);
   }
 
-  T& operator*() const {  // never throws
+  T& operator*() const {
     return *cp_.first();
   }
 
-  T* operator->() const {  // never throws
+  T* operator->() const {
     return cp_.first();
   }
 };
 
 template <typename T>
-inline void swap(scoped_ptr<T>& lhs, scoped_ptr<T>& rhs) {  // never throws
+inline void swap(scoped_ptr<T>& lhs, scoped_ptr<T>& rhs) {
   lhs.swap(rhs);
 }
 
@@ -59,17 +59,17 @@ inline void swap(scoped_ptr<T>& lhs, scoped_ptr<T>& rhs) {  // never throws
 template <typename T, typename Deleter = checked_array_deleter<T> >
 class scoped_array : public scoped_ptr<T, Deleter> {
  public:
-  scoped_array() {}  // never throws
-  // never throws
+  scoped_array() {}
+
   explicit scoped_array(T* p = 0) : scoped_ptr<T, Deleter>(p) {}
-  // never throws
+
   scoped_array(T* p, Deleter d) : scoped_ptr<T, Deleter>(p, d) {}
 
-  ~scoped_array() {  // never throws
+  ~scoped_array() {
     ~scoped_ptr<T, Deleter>();
   }
 
-  T& operator[](size_t i) const {  // never throws
+  T& operator[](size_t i) const {
     return this->get()[i];
   }
 };
