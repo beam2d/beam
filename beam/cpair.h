@@ -14,9 +14,6 @@ class cstruct {
   T t_;
 
  public:
-  static const bool is_empty = false;
-  typedef T value_type;
-
   cstruct() {}
   cstruct(const cstruct& c) : t_(c.t_) {}
   cstruct(const T& t) : t_(t) {}
@@ -33,9 +30,6 @@ class cstruct {
 // case that T is empty
 template <typename T> class cstruct<T, true> : T {
  public:
-  static const bool is_empty = true;
-  typedef T value_type;
-
   cstruct() {}
   cstruct(const cstruct& c) : T(*static_cast<const T*>(c)) {}
   cstruct(const T& t) : T(t) {}
