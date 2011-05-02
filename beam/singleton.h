@@ -59,10 +59,8 @@ typedef singleton_finalizer_tmpl<AVOID_ODR> singleton_finalizer;
 // e.g.)
 //   class A : public singleton<A> { ... };
 //   class B { ... };
-// If A and/or B should be not constructable by others, they need to have
-// singleton as a friend class.
-// NOTE: See comments in singleton::get. For all T, T::~T must not call
-// singleton<T>::get, which causes an infinite loop.
+// NOTE: See notes of singleton::get. In most cases, T::~T should not call
+// singleton<T>::get, which causes stack overflow.
 template <typename T> class singleton {
   static once_flag once_flag_;
   static T* instance_;
@@ -91,8 +89,8 @@ template <typename T> class singleton {
       // called after singleton finalizers and call singleton::get. During the
       // static variables' destruction, we suppose only main thread is running,
       // so we ignore thread safety here.
-      // NOTE: Be careful to an unintended infinite loop. If instance_->~T
-      // calls singleton<T>::get, it tries to create new instance of T, and
+      // NOTE: Be careful to stack overflow. If instance_->~T always calls
+      // singleton<T>::get, it tries to create a new instance of T, and
       // instance_->~T will be called at exit again.
       init()();
     }
