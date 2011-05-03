@@ -9,7 +9,11 @@
 # define BEAM_LINE __LINE__
 #endif
 
+#define BEAM_STRINGIZE(x) BEAM_STRINGIZE_(x)
+#define BEAM_STRINGIZE_(x) #x
+
 #if !defined(BEAM_NO_SHORT_MACRO) && !defined(BEAM_NO_SHORT_PP_MACRO)
 # define CAT BEAM_CAT
 # define LINE BEAM_LINE
+# define STRINGIZE BEAM_STRINGIZE
 #endif
