@@ -4,9 +4,11 @@ def build(bld):
   bld.install_files('${PREFIX}/include/beam', bld.path.ant_glob('*.h'))
 
   bld(features = 'cxx cprogram gtest',
-      source = ['cpair_test.cc',
-                'scoped_ptr_test.cc',],
+      source = 'scoped_ptr_test.cc',
       target = 'scoped_ptr_test')
+  bld(features = 'cxx cprogram gtest',
+      source = 'cpair_test.cc',
+      target = 'cpair_test')
 
   bld.recurse('log')
   bld.recurse('tr1')
