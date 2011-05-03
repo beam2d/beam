@@ -75,7 +75,7 @@ template <typename T> class singleton {
   static void finalize() {
     T* p = instance_;
     instance_ = 0;
-    checked_delete(instance_);
+    checked_delete(p);
   }
 
  protected:
