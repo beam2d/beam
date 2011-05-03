@@ -114,7 +114,8 @@ struct null_stream {
 #define BEAM_LOG_LEVELVALUE_(level) ::beam::log::LOGLEVEL_ ## level
 
 #ifndef BEAM_LOG_PREFIX
-# define BEAM_LOG_PREFIX(type) "[" type "] " __FILE__ "(" BEAM_LINE "): "
+# define BEAM_LOG_PREFIX(type)                                \
+  "[" type "] " __FILE__ "(" BEAM_STRINGIZE(BEAM_LINE) "): "
 #endif
 
 #define BEAM_LOG(level)                                                 \
