@@ -2,3 +2,7 @@
 
 def build(bld):
   bld.install_files('${PREFIX}/include/beam/log', bld.path.ant_glob('*.h'))
+
+  bld(features = 'cxx cprogram gtest',
+      source = 'logger_test.cc',
+      target = 'logger_test')
