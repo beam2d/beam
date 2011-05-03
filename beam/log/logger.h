@@ -10,11 +10,18 @@
 #endif
 
 #include "../noncopyable.h"
+#include "../preprocessor.h"
 #include "../singleton.h"
 #include "logging_server.h"
 
 namespace beam {
 namespace log {
+
+// Exception type which is thrown on (D)CHECK failure
+class check_error : virtual std::exception {};
+
+// Exception type which is thrown on (D)LOG(FATAL)
+class fatal_log : virtual std::exception {};
 
 namespace detail {
 
@@ -56,10 +63,8 @@ template <typename Module> class verbose_logger : noncopyable {
   }
 };
 
-// Exception type which is thrown on (D)CHECK failure
-class check_error : virtual std::exception {};
-
 // Logger for (D)CHECK
+template <typename Error>
 class exception_logger : noncopyable {
   std::ostringstream oss_;
   log_level level_;
@@ -71,7 +76,7 @@ class exception_logger : noncopyable {
   void write() const {
     logging_server& ls = singleton<logging_server>::get();
     ls.write(level_, oss_.str());
-    throw check_error();
+    throw Error();
   }
 
   template <typename T> exception_logger& operator<<(const T& t) {
@@ -90,7 +95,7 @@ template <log_level L> struct logger_of_level {
   typedef logger type;
 };
 template <> struct logger_of_level<LOGLEVEL_FATAL> {
-  typedef exception_logger type;
+  typedef exception_logger<fatal_log> type;
 };
 
 struct null_stream {
@@ -109,9 +114,7 @@ struct null_stream {
 #define BEAM_LOG_LEVELVALUE_(level) ::beam::log::LOGLEVEL_ ## level
 
 #ifndef BEAM_LOG_PREFIX
-# define BEAM_LOG_STRINGIZE_(x) #x
-# define BEAM_LOG_PREFIX(type)                                    \
-  "[" #type "] " __FILE__ "(" BEAM_LOG_STRINGIZE_(__LINE__) "): "
+# define BEAM_LOG_PREFIX(type) "[" type "] " __FILE__ "(" BEAM_LINE "): "
 #endif
 
 #define BEAM_LOG(level)                                                 \
@@ -125,9 +128,10 @@ struct null_stream {
   (::beam::log::detail::verbose_logger<module>(verbosity))  \
   << BEAM_LOG_PREFIX(#module "(" #verbosity ")")
 
-#define BEAM_CHECK(cond) \
-  (cond) ? (void)0 : ::beam::log::detail::logger_write_trigger() & \
-  (::beam::log::detail::exception_logger()) << BEAM_LOG_PREFIX(CHECK)
+#define BEAM_CHECK(cond)                                               \
+  (cond) ? (void)0 : ::beam::log::detail::logger_write_trigger() &     \
+  (::beam::log::detail::exception_logger< ::beam::log::check_error>())  \
+  << BEAM_LOG_PREFIX("CHECK")
 
 #ifdef NDEBUG
 # define BEAM_LOG_NULL_STREAM_                                 \
