@@ -2,8 +2,9 @@
 
 #include <iostream>
 #include <string>
-#include "../mutex.h"
-#include "../tr1/unordered_map.h"
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/tr1/unordered_map.hpp>
 #include "../type_id.h"
 
 namespace beam {
@@ -18,7 +19,7 @@ enum log_level {
 
 class logging_server {
   std::tr1::unordered_map<type_id, int> module_verbosities_;
-  mutex mutex_;
+  boost::mutex mutex_;
   std::ostream* stream_;
   log_level level_;
 
@@ -39,14 +40,14 @@ class logging_server {
 
   void write(log_level l, const std::string& message) {
     if (l < level_) return;
-    scoped_lock<mutex> lock(mutex_);
+    boost::lock_guard<boost::mutex> lock(mutex_);
     (*stream_) << message << std::endl;
   }
 
   template <typename Module>
   void verbose_write(int verbosity, const std::string& message) {
     if (module_verbosities_[get_type_id<Module>()] < verbosity) return;
-    scoped_lock<mutex> lock(mutex_);
+    boost::lock_guard<boost::mutex> lock(mutex_);
     (*stream_) << message << std::endl;
   }
 };

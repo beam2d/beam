@@ -2,17 +2,19 @@
 
 #include <algorithm>
 #include <cassert>
-#include "checked_delete.h"
-#include "cpair.h"
-#include "noncopyable.h"
+#include <boost/assert.hpp>
+#include <boost/checked_delete.hpp>
+#include <boost/compressed_pair.hpp>
+#include <boost/noncopyable.hpp>
 #include "safe_bool.h"
 
 namespace beam {
 
 // Deleter must not throw.
-template <typename T, typename Deleter = checked_deleter<T> >
-class scoped_ptr : public safe_bool<scoped_ptr<T> >, noncopyable {
-  cpair<T*, Deleter> cp_;
+template <typename T, typename Deleter = boost::checked_deleter<T> >
+class scoped_ptr
+    : public safe_bool<scoped_ptr<T, Deleter> >, boost::noncopyable {
+  boost::compressed_pair<T*, Deleter> cp_;
 
  public:
   explicit scoped_ptr(T* p = 0) : cp_(p, Deleter()) {}
@@ -32,7 +34,7 @@ class scoped_ptr : public safe_bool<scoped_ptr<T> >, noncopyable {
   }
 
   void reset(T* p = 0) {
-    assert(p == 0 || p != cp_.first());
+    BOOST_ASSERT(p == 0 || p != cp_.first());
     scoped_ptr(p).swap(*this);
   }
 
@@ -56,7 +58,7 @@ inline void swap(scoped_ptr<T>& lhs, scoped_ptr<T>& rhs) {
 
 
 // Deleter must not throw.
-template <typename T, typename Deleter = checked_array_deleter<T> >
+template <typename T, typename Deleter = boost::checked_array_deleter<T> >
 class scoped_array : public scoped_ptr<T, Deleter> {
  public:
   scoped_array() {}

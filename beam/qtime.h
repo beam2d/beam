@@ -1,14 +1,14 @@
 #pragma once
 
+#include <boost/cstdint.hpp>
 #ifdef WIN32
 # pragma comment(lib, "winmm.lib")
-# include <cstdint>
+# include <boost/thread/locks.hpp>
+# include <boost/thread/mutex.hpp>
 # include <windows.h>
-# include "mutex.h"
 #else
 # include <ctime>
 # include <sys/time.h>
-# include <tr1/cstdint>
 #endif
 
 namespace beam {
@@ -63,22 +63,22 @@ inline qtime get_qtime() {
 class time_begin_period {
 #ifdef WIN32
   class inner {
-    mutex m_;
+    boost::mutex m_;
     unsigned int p_;
 
    public:
     time_begin_period() : p_(-1) {}
     explicit time_begin_period(unsigned int p) : p_(p) {
-      scoped_lock<mutex> lock(m_);
+      boost::lock_guard<boost::mutex> lock(m_);
       if (p != -1) timeBeginPeriod(p);
     }
     ~time_begin_period() {
-      scoped_lock<mutex> lock(m_);
+      boost::lock_guard<boost::mutex> lock(m_);
       if (p_ != -1) timeEndPeriod(p);
     }
 
     void reset(unsigned int p = -1) {
-      scoped_lock<mutex> lock(m_);
+      boost::lock_guard<boost::mutex> lock(m_);
       if (p_ != -1) timeEndPeriod(p_);
       p_ = p;
       if (p != -1) timeBeginPeriod(p);

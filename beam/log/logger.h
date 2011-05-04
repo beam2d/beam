@@ -2,6 +2,11 @@
 
 #include <exception>
 #include <sstream>
+#include <boost/current_function.hpp>
+#include <boost/exception/exception.hpp>
+#include <boost/noncopyable.hpp>
+#include <boost/preprocessor/stringize.hpp>
+#include <boost/throw_exception.hpp>
 
 // ERROR conflicts with symbol defined in windows.h
 #ifdef WIN32
@@ -9,8 +14,6 @@
 # undef ERROR
 #endif
 
-#include "../noncopyable.h"
-#include "../preprocessor.h"
 #include "../singleton.h"
 #include "logging_server.h"
 
@@ -18,15 +21,15 @@ namespace beam {
 namespace log {
 
 // Exception type which is thrown on (D)CHECK failure
-class check_error : virtual std::exception {};
+struct check_error : virtual std::exception, virtual boost::exception {};
 
 // Exception type which is thrown on (D)LOG(FATAL)
-class fatal_log : virtual std::exception {};
+struct fatal_log : virtual std::exception, virtual boost::exception {};
 
 namespace detail {
 
 // General purpose logger
-class logger : noncopyable {
+class logger : boost::noncopyable {
   std::ostringstream oss_;
   log_level level_;
 
@@ -45,7 +48,7 @@ class logger : noncopyable {
 };
 
 // Module-wise logger
-template <typename Module> class verbose_logger : noncopyable {
+template <typename Module> class verbose_logger : boost::noncopyable {
   std::ostringstream oss_;
   int verbosity_;
 
@@ -65,7 +68,7 @@ template <typename Module> class verbose_logger : noncopyable {
 
 // Logger for (D)CHECK
 template <typename Error>
-class exception_logger : noncopyable {
+class exception_logger : boost::noncopyable {
   std::ostringstream oss_;
   log_level level_;
 
@@ -76,7 +79,7 @@ class exception_logger : noncopyable {
   void write() const {
     logging_server& ls = singleton<logging_server>::get();
     ls.write(level_, oss_.str());
-    throw Error();
+    BOOST_THROW_EXCEPTION(Error());
   }
 
   template <typename T> exception_logger& operator<<(const T& t) {
@@ -102,7 +105,7 @@ struct null_stream {
   struct void_op {
     void operator&(null_stream) {}
   };
-  template <typename T> null_stream& operator<<(T) const {
+  template <typename T> const null_stream& operator<<(T) const {
     return *this;
   }
 };
@@ -113,9 +116,16 @@ struct null_stream {
 
 #define BEAM_LOG_LEVELVALUE_(level) ::beam::log::LOGLEVEL_ ## level
 
+#ifdef _MSC_VER
+# define BEAM_LOG_LINE_ __COUNTER__
+#else
+# define BEAM_LOG_LINE_ __LINE__
+#endif
+
 #ifndef BEAM_LOG_PREFIX
-# define BEAM_LOG_PREFIX(type)                                \
-  "[" type "] " __FILE__ "(" BEAM_STRINGIZE(BEAM_LINE) "): "
+#  define BEAM_LOG_PREFIX(type)                                \
+  "[" type "] " BOOST_PP_STRINGIZE(BOOST_CURRENT_FUNCTION)     \
+  " @ " __FILE__ "(" BOOST_PP_STRINGIZE(BEAM_LOG_LINE_) "): "
 #endif
 
 #define BEAM_LOG(level)                                                 \

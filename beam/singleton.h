@@ -2,10 +2,11 @@
 
 #include <cstdlib>
 #include <vector>
-#include "atomic.h"
+#include <boost/checked_delete.hpp>
+#include <boost/thread/locks.hpp>
+#include <boost/thread/mutex.hpp>
+#include <boost/thread/once.hpp>
 #include "avoid_odr.h"
-#include "checked_delete.h"
-#include "mutex.h"
 #include "nonconstructible.h"
 
 namespace beam {
@@ -16,19 +17,19 @@ template <avoid_odr>
 class singleton_finalizer_tmpl : nonconstructible {
   template <typename T> friend class singleton;
 
-  static mutex mutex_;
-  static bool registered_;
   static std::vector<void (*)()> finalizers_;
+  static boost::mutex mutex_;
+  static bool registered_;
 
   static void finalize() {
     {
-      scoped_lock<mutex> lock(mutex_);
+      boost::lock_guard<boost::mutex> lock(mutex_);
       registered_ = false;
     }
     while (!finalizers_.empty()) {
       std::vector<void (*)()> finalizers;
       {
-        scoped_lock<mutex> lock(mutex_);
+        boost::lock_guard<boost::mutex> lock(mutex_);
         finalizers.swap(finalizers_);
       }
       while (!finalizers.empty()) {
@@ -39,7 +40,7 @@ class singleton_finalizer_tmpl : nonconstructible {
   }
 
   static void register_finalizer(void (*finalizer)()) {
-    scoped_lock<mutex> lock(mutex_);
+    boost::lock_guard<boost::mutex> lock(mutex_);
     if (!registered_) {
       std::atexit(finalize);
       registered_ = true;
@@ -48,10 +49,10 @@ class singleton_finalizer_tmpl : nonconstructible {
   }
 };
 
-template <avoid_odr N> mutex singleton_finalizer_tmpl<N>::mutex_;
-template <avoid_odr N> bool singleton_finalizer_tmpl<N>::registered_;
 template <avoid_odr N>
 std::vector<void (*)()> singleton_finalizer_tmpl<N>::finalizers_;
+template <avoid_odr N> boost::mutex singleton_finalizer_tmpl<N>::mutex_;
+template <avoid_odr N> bool singleton_finalizer_tmpl<N>::registered_;
 
 typedef singleton_finalizer_tmpl<AVOID_ODR> singleton_finalizer;
 
@@ -62,7 +63,7 @@ typedef singleton_finalizer_tmpl<AVOID_ODR> singleton_finalizer;
 // NOTE: See notes of singleton::get. In most cases, T::~T should not call
 // singleton<T>::get, which causes stack overflow.
 template <typename T> class singleton {
-  static once_flag once_flag_;
+  static boost::once_flag once_flag_;
   static T* instance_;
 
   struct init {
@@ -75,7 +76,7 @@ template <typename T> class singleton {
   static void finalize() {
     T* p = instance_;
     instance_ = 0;
-    checked_delete(p);
+    boost::checked_delete(p);
   }
 
  protected:
@@ -83,7 +84,7 @@ template <typename T> class singleton {
 
  public:
   static T& get() {
-    call_once(once_flag_, init());
+    boost::call_once(once_flag_, init());
     if (!instance_) {
       // This code is executed only by static variables' destructors which are
       // called after singleton finalizers and call singleton::get. During the
@@ -98,7 +99,8 @@ template <typename T> class singleton {
   }
 };
 
-template <typename T> once_flag singleton<T>::once_flag_ = ONCE_INIT;
-template <typename T> T* singleton<T>::instance_;
+template <typename T>
+boost::once_flag singleton<T>::once_flag_ = BOOST_ONCE_INIT;
+template <typename T> T* singleton<T>::instance_ = 0;
 
 }  // namespace beam

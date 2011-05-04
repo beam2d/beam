@@ -1,12 +1,12 @@
 #pragma once
 
-#include "noncopyable.h"
+#include <boost/noncopyable.hpp>
 
 namespace beam {
 
 namespace nonconstructible_avoid_adl {
 
-class nonconstructible : noncopyable {
+class nonconstructible : boost::noncopyable {
   nonconstructible();
   ~nonconstructible();
 };

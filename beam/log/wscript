@@ -5,4 +5,5 @@ def build(bld):
 
   bld(features = 'cxx cprogram gtest',
       source = 'logger_test.cc',
-      target = 'logger_test')
+      target = 'logger_test',
+      lib = 'boost_thread')

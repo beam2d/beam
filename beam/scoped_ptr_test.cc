@@ -1,6 +1,6 @@
 #include <algorithm>
+#include <boost/checked_delete.hpp>
 #include <gtest/gtest.h>
-#include "../beam/checked_delete.h"
 #include "../beam/scoped_ptr.h"
 
 namespace beam {
@@ -29,7 +29,7 @@ class sample_class {
 struct custom_deleter {
   void operator()(sample_class* p) const {
     p->set();
-    checked_delete(p);
+    boost::checked_delete(p);
   }
 };
 
