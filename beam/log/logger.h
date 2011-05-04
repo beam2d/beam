@@ -123,9 +123,9 @@ struct null_stream {
 #endif
 
 #ifndef BEAM_LOG_PREFIX
-#  define BEAM_LOG_PREFIX(type)                                \
-  "[" type "] " BOOST_PP_STRINGIZE(BOOST_CURRENT_FUNCTION)     \
-  " @ " __FILE__ "(" BOOST_PP_STRINGIZE(BEAM_LOG_LINE_) "): "
+#  define BEAM_LOG_PREFIX(type)                          \
+  "[" type "] " << BOOST_CURRENT_FUNCTION << " @ "       \
+  __FILE__ "(" BOOST_PP_STRINGIZE(BEAM_LOG_LINE_) "): "
 #endif
 
 #define BEAM_LOG(level)                                                 \
