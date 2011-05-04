@@ -34,7 +34,7 @@ class scoped_ptr
   }
 
   void reset(T* p = 0) {
-    BOOST_ASSERT(p == 0 || p != cp_.first());
+    BOOST_ASSERT(!p || p != cp_.first());
     scoped_ptr(p).swap(*this);
   }
 
