@@ -2,6 +2,8 @@
 
 #include <cstdlib>
 #include <boost/exception/diagnostic_information.hpp>
+#include <boost/optional.hpp>
+#include <boost/utility/result_of.hpp>
 #include "logger.h"
 
 #define BEAM_CATCH_ALL_AND_LOG                      \
@@ -30,10 +32,11 @@ namespace beam {
 namespace log {
 
 template <typename F>
-inline void catch_all_and_log(F f) {
+boost::optional<typename boost::result_of<F()>::type> catch_all_and_log(F f) {
   BEAM_CATCH_ALL_AND_LOG {
-    f();
+    return f();
   } BEAM_CATCH_ALL_AND_LOG_END;
+  return boost::none;
 }
 
 }  // namespace log
