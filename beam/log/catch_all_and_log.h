@@ -6,22 +6,29 @@
 #include <boost/type_traits.hpp>
 #include <boost/utility/enable_if.hpp>
 #include <boost/utility/result_of.hpp>
+#include "../singleton.h"
 #include "logger.h"
 
-#define BEAM_CATCH_ALL_AND_LOG                      \
-  do { std::string BEAM_CATCH_ALL_AND_LOG_msg; try
+#define BEAM_CATCH_ALL_AND_LOG                  \
+  do {                                          \
+    std::string BEAM_CATCH_ALL_AND_LOG_msg;     \
+    try {                                       \
+      do
 
 #define BEAM_CATCH_ALL_AND_LOG_END                                      \
-  catch (...) {                                                         \
-    boost::current_exception_diagnostic_information().swap(             \
-        BEAM_CATCH_ALL_AND_LOG_msg);                                    \
-  }                                                                     \
-  if (!BEAM_CATCH_ALL_AND_LOG_msg.empty())                              \
-    try {                                                               \
-      LOG(FATAL) << "UNCAUGHT EXCEPTION\n" << BEAM_CATCH_ALL_AND_LOG_msg; \
-    } catch (::beam::log::fatal_log) {                                  \
+      while (0);                                                        \
     } catch (...) {                                                     \
-      std::exit(1);                                                     \
+      boost::current_exception_diagnostic_information().swap(           \
+          BEAM_CATCH_ALL_AND_LOG_msg);                                  \
+    }                                                                   \
+    if (!BEAM_CATCH_ALL_AND_LOG_msg.empty()) {                          \
+      try {                                                             \
+        (::beam::log::detail::logger(::beam::log::LOGLEVEL_ERROR)       \
+             << "[ERROR] UNCAUGHT EXCEPTION\n"                          \
+             << BEAM_CATCH_ALL_AND_LOG_msg).write();                    \
+      } catch (...) {                                                   \
+        std::exit(1);                                                   \
+      }                                                                 \
     }                                                                   \
   } while (0)
 
