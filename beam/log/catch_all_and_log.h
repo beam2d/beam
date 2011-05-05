@@ -3,6 +3,8 @@
 #include <cstdlib>
 #include <boost/exception/diagnostic_information.hpp>
 #include <boost/optional.hpp>
+#include <boost/type_traits.hpp>
+#include <boost/utility/enable_if.hpp>
 #include <boost/utility/result_of.hpp>
 #include "logger.h"
 
@@ -32,11 +34,25 @@ namespace beam {
 namespace log {
 
 template <typename F>
-boost::optional<typename boost::result_of<F()>::type> catch_all_and_log(F f) {
+boost::optional<typename boost::result_of<F()>::type>
+catch_all_and_log(F f,
+                  typename boost::disable_if<
+                    boost::is_void<
+                      typename boost::result_of<F()>::type> >::type* = 0) {
   BEAM_CATCH_ALL_AND_LOG {
     return f();
   } BEAM_CATCH_ALL_AND_LOG_END;
   return boost::none;
+}
+
+template <typename F>
+void catch_all_and_log(F f,
+                  typename boost::enable_if<
+                    boost::is_void<
+                      typename boost::result_of<F()>::type> >::type* = 0) {
+  BEAM_CATCH_ALL_AND_LOG {
+    f();
+  } BEAM_CATCH_ALL_AND_LOG_END;
 }
 
 }  // namespace log
