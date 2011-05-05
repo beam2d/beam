@@ -17,6 +17,7 @@ def configure(cnf):
   cnf.check_cxx(header_name='boost/checked_delete.hpp')
   cnf.check_cxx(header_name='boost/compressed_pair.hpp')
   cnf.check_cxx(header_name='boost/current_function.hpp')
+  cnf.check_cxx(header_name='boost/exception/diagnostic_information.hpp')
   cnf.check_cxx(header_name='boost/exception/exception.hpp')
   cnf.check_cxx(header_name='boost/noncopyable.hpp')
   cnf.check_cxx(header_name='boost/preprocessor/stringize.hpp')
