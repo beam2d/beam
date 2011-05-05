@@ -38,6 +38,11 @@ class scoped_ptr
     scoped_ptr(p).swap(*this);
   }
 
+  void reset(T* p, Deleter d) {
+    BOOST_ASSERT(!p || p != cp_.first());
+    scoped_ptr(p, d).swap(*this);
+  }
+
   void swap(scoped_ptr& sp) {
     cp_.swap(sp.cp_);
   }
