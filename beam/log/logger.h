@@ -137,7 +137,7 @@ struct null_stream {
 #define BEAM_VLOG(module, verbosity)                        \
   ::beam::log::detail::logger_write_trigger() &             \
   (::beam::log::detail::verbose_logger<module>(verbosity))  \
-  << BEAM_LOG_PREFIX(#module "(" #verbosity ")")
+  << BEAM_LOG_PREFIX(#module ":" #verbosity)
 
 #define BEAM_CHECK(cond)                                               \
   (cond) ? (void)0 : ::beam::log::detail::logger_write_trigger() &     \
