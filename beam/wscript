@@ -8,3 +8,4 @@ def build(bld):
       target = 'scoped_ptr_test')
 
   bld.recurse('log')
+  bld.recurse('timer')
