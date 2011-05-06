@@ -3,6 +3,7 @@
 // TODO: Use proper macro to distinguish POSIX.
 #ifdef __GNUC__
 
+#include <sys/time.h>
 #include "ttime.h"
 
 namespace beam {
@@ -10,7 +11,7 @@ namespace beam {
 inline ttime get_performance_time() {
   timeval tv;
   gettimeofday(&tv, 0);
-  return ttime(tv);
+  return ttime(tv.tv_sec * 1000000 + tv.tv_usec);
 }
 
 inline ttime get_steady_time() {

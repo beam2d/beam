@@ -1,7 +1,5 @@
 #pragma once
 
-#include <sys/time.h>
-
 namespace beam {
 
 typedef long long sec_t;
@@ -15,7 +13,6 @@ class ttime {
   ttime() {}
   ttime(const ttime& tt) : t_(tt.t_) {}
   explicit ttime(usec_t t) : t_(t) {}
-  explicit ttime(timeval tv) : t_(tv.tv_sec * 1000000 + tv.tv_usec) {}
   ttime& operator=(const ttime& tt) {
     t_ = tt.t_;
     return *this;
