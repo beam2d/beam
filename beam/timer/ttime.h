@@ -28,6 +28,26 @@ class ttime {
     return static_cast<double>(t_) / tt.t_;
   }
 
+  bool operator==(ttime tt) const {
+    return t_ == tt.t_;
+  }
+  bool operator!=(ttime tt) const {
+    return !operator==(tt);
+  }
+
+  bool operator<(ttime tt) const {
+    return t_ < tt.t_;
+  }
+  bool operator<=(ttime tt) const {
+    return t_ <= tt.t_;
+  }
+  bool operator>=(ttime tt) const {
+    return t_ >= tt.t_;
+  }
+  bool operator>(ttime tt) const {
+    return t_ > tt.t_;
+  }
+
   sec_t sec() const {
     return t_ / 1000000;
   }
