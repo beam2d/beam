@@ -2,7 +2,7 @@
 
 #include <cstdlib>
 #include <vector>
-#include <boost/checked_delete.hpp>
+#include <boost/noncopyable.hpp>
 #include <boost/thread/locks.hpp>
 #include <boost/thread/mutex.hpp>
 #include <boost/thread/once.hpp>
@@ -62,7 +62,7 @@ typedef singleton_finalizer_tmpl<AVOID_ODR> singleton_finalizer;
 //   class B { ... };
 // NOTE: See notes of singleton::get. In most cases, T::~T should not call
 // singleton<T>::get, which causes stack overflow.
-template <typename T> class singleton {
+template <typename T> class singleton : boost::noncopyable {
   static boost::once_flag once_flag_;
   static T* instance_;
 
@@ -76,7 +76,11 @@ template <typename T> class singleton {
   static void finalize() {
     T* p = instance_;
     instance_ = 0;
-    boost::checked_delete(p);
+    // We cannot use boost::checked_delete, because it requires users to
+    // declare boost::checked_delete as a friend of T, if T::~T is private.
+    typedef char T_must_be_complete[sizeof(T) ? 1 : -1];
+    (void) sizeof(T_must_be_complete);
+    delete p;
   }
 
  protected:
